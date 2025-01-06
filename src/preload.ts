@@ -47,6 +47,7 @@ import type { GetCompilationConfigOutput } from './backendTasks/getCompilationCo
 import type { StartCompilationInput, StartCompilationOutput } from './backendTasks/startCompilation';
 import type { SaveCompilationLogsInput } from './backendTasks/saveCompilationLogs';
 import type { SynchronizeLanguageInput } from './backendTasks/synchronizeLanguage';
+import type { GetEntityTaskPayload, GetTextKeysInProjectOutput, LoadProjectTaskPayload, SetEntityTaskPayload } from './projectState/backendTasks';
 
 contextBridge.exposeInMainWorld('api', {
   isDev: process.env.NODE_ENV === 'development',
@@ -159,6 +160,13 @@ contextBridge.exposeInMainWorld('api', {
   synchronizeLanguage: defineBackendTask(ipcRenderer, 'synchronize-language'),
 });
 
+contextBridge.exposeInMainWorld('stateApi', {
+  load: defineBackendTask(ipcRenderer, 'load-project-state-task'),
+  getEntity: defineBackendTask(ipcRenderer, 'get-entity-in-project-state'),
+  setEntity: defineBackendTask(ipcRenderer, 'set-entity-in-project-state'),
+  getTextKeys: defineBackendTask(ipcRenderer, 'get-text-keys-in-project-state'),
+});
+
 type AnyObj = Record<string, never>;
 
 declare global {
@@ -250,6 +258,12 @@ declare global {
       startCompilation: BackendTaskWithGenericError<StartCompilationInput, StartCompilationOutput, GenericBackendProgress>;
       saveCompilationLogs: BackendTaskWithGenericErrorAndNoProgress<SaveCompilationLogsInput, AnyObj>;
       synchronizeLanguage: BackendTaskWithGenericErrorAndNoProgress<SynchronizeLanguageInput, AnyObj>;
+    };
+    stateApi: {
+      load: BackendTaskWithGenericError<LoadProjectTaskPayload, AnyObj, GenericBackendProgress>;
+      getEntity: BackendTaskWithGenericErrorAndNoProgress<GetEntityTaskPayload, AnyObj>;
+      setEntity: BackendTaskWithGenericErrorAndNoProgress<SetEntityTaskPayload, AnyObj>;
+      getTextKeys: BackendTaskWithGenericErrorAndNoProgress<AnyObj, GetTextKeysInProjectOutput>;
     };
   }
 }
